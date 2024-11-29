@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "170545316842",
+    "project_id": "eco-food-user",
+    "storage_bucket": "eco-food-user.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:170545316842:android:3ff86be72aa0643c326893",
+        "android_client_info": {
+          "package_name": "com.example.qlbh_eco_food"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlMNSKX6AoGZ63ECTm97Ix1JCaD9oIH4A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
