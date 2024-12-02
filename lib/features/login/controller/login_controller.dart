@@ -19,16 +19,5 @@ class LoginController extends GetxController {
     password.value = passWordChanged;
   }
 
-  // Future<void> login() async {
-  //   validateMode.value = AutovalidateMode.always;
-  //   if (formKey.currentState!.validate()) {
-  //     isLoading.value = true;
-  //     await Future.delayed(Duration(seconds: 1));
-  //     try {
-  //       if()
-  //     } catch (e) {
-        
-  //     }
-  //   }
-  // }
+
 }

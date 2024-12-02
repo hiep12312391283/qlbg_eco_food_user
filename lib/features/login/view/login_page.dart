@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +10,7 @@ import 'package:qlbh_eco_food/base/const/app_text_style.dart';
 import 'package:qlbh_eco_food/base/const/colors.dart';
 import 'package:qlbh_eco_food/base/widget/base_widget.dart';
 import 'package:qlbh_eco_food/features/login/controller/login_controller.dart';
+import 'package:qlbh_eco_food/features/register/model/user.dart';
 
 class LoginPage extends GetView<LoginController> {
   final TextEditingController _emailController = TextEditingController();
@@ -23,6 +25,17 @@ class LoginPage extends GetView<LoginController> {
           _emailController.text, _passwordController.text);
 
       if (user != null && user.emailVerified) {
+        // Lấy thông tin người dùng từ Firestore
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        UserModel userModel = UserModel.fromFirestore(userDoc);
+
+        // In ra id và name
+        print('User ID: ${userModel.id}');
+        print('User Name: ${userModel.name}');
+
         Get.offAllNamed('/home_page');
       } else {
         // await authService.signOut();
@@ -44,12 +57,11 @@ class LoginPage extends GetView<LoginController> {
         );
       }
     } catch (e) {
-      // Hiển thị thông báo lỗi nếu đăng nhập thất bại
       showDialog(
           context: context,
           builder: (context) => AlertDialog(
                 title: Text("Đăng nhập thất bại"),
-                // content: Text(e.toString()),
+                content: Text(e.toString()),
               ));
     }
   }

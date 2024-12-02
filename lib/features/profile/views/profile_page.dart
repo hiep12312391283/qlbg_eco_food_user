@@ -3,9 +3,12 @@ import 'package:get/get.dart';
 import 'package:qlbh_eco_food/base/const/app_text_style.dart';
 import 'package:qlbh_eco_food/base/const/colors.dart';
 import 'package:qlbh_eco_food/features/profile/controller/profile_controller.dart';
+import 'package:qlbh_eco_food/features/profile/views/edit_profile_page.dart';
+import 'package:qlbh_eco_food/features/register/model/user.dart';
 
 class ProfilePage extends GetView<ProfileController> {
-  const ProfilePage({super.key});
+  ProfilePage({super.key});
+  final ProfileController controller = Get.put(ProfileController());
 
   @override
   Widget build(BuildContext context) {
@@ -15,15 +18,6 @@ class ProfilePage extends GetView<ProfileController> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Container(
-            //   height: 50,
-            //   width: double.infinity,
-            //   decoration: const BoxDecoration(color: Colors.white),
-            //   child: BaseWidget.buildText(
-            //     "Tài khoản",
-            //     style: AppTextStyle.font24Re,
-            //   ),
-            // ),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -40,7 +34,9 @@ class ProfilePage extends GetView<ProfileController> {
               child: Column(
                 children: [
                   _buildButtonProfile(
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.to(ProfileView());
+                      },
                       text: "Thông tin cá nhân",
                       icon: Icons.person_outline),
                   const Divider(height: 0.5),
@@ -109,7 +105,7 @@ class ProfilePage extends GetView<ProfileController> {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        color: Colors.transparent, 
+        color: Colors.transparent,
         child: SizedBox(
           height: 50,
           child: Row(

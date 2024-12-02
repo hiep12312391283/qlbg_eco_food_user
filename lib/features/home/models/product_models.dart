@@ -18,7 +18,7 @@ class Product {
     required this.stock,
     required this.entryDate,
     required this.expiryDate,
-    required this.imageBase64, // Đổi tên biến để phản ánh rằng nó lưu trữ ảnh dưới dạng base64
+    required this.imageBase64,
   });
 
   Map<String, dynamic> toJson() {
@@ -31,7 +31,7 @@ class Product {
       'stock': stock,
       'entryDate': entryDate.toIso8601String(),
       'expiryDate': expiryDate.toIso8601String(),
-      'imageBase64': imageBase64, // Sử dụng imageBase64 để lưu trữ ảnh
+      'imageBase64': imageBase64,
     };
   }
 }

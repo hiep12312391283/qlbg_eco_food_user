@@ -65,7 +65,7 @@ class MyApp extends StatelessWidget {
           ),
           GetPage(
             name: '/account',
-            page: () => const ProfilePage(),
+            page: () =>  ProfilePage(),
           ),
           GetPage(
             name: '/cart',
