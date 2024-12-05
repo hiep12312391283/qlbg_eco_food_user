@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:qlbh_eco_food/base/const/app_text_style.dart';
 import 'package:qlbh_eco_food/base/const/colors.dart';
+import 'package:qlbh_eco_food/features/order_history/view/order_history_page.dart';
 import 'package:qlbh_eco_food/features/profile/controller/profile_controller.dart';
 import 'package:qlbh_eco_food/features/profile/views/edit_profile_page.dart';
-import 'package:qlbh_eco_food/features/register/model/user.dart';
 
 class ProfilePage extends GetView<ProfileController> {
   ProfilePage({super.key});
@@ -35,35 +35,32 @@ class ProfilePage extends GetView<ProfileController> {
                 children: [
                   _buildButtonProfile(
                       onPressed: () {
-                        Get.to(ProfileView());
+                        Get.to(EditProfilePage());
                       },
                       text: "Thông tin cá nhân",
                       icon: Icons.person_outline),
                   const Divider(height: 0.5),
                   _buildButtonProfile(
-                      onPressed: () {},
-                      text: "Địa chỉ nhận hàng",
-                      icon: Icons.location_on_outlined),
-                  const Divider(height: 0.5),
-                  _buildButtonProfile(
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.to(() => OrderHistoryPage());
+                      },
                       text: "Đơn hàng đã mua",
                       icon: Icons.receipt_long_outlined),
                   const Divider(height: 1),
-                  _buildButtonProfile(
-                      onPressed: () {},
-                      text: "Cài đặt",
-                      icon: Icons.settings_outlined),
-                  const Divider(height: 1),
+                  // _buildButtonProfile(
+                  //     onPressed: () {},
+                  //     text: "Cài đặt",
+                  //     icon: Icons.settings_outlined),
+                  // const Divider(height: 1),
                   _buildButtonProfile(
                       onPressed: () {},
                       text: "Tổng đài tư vấn: 1900.1908",
                       icon: Icons.phone_outlined),
                   const Divider(height: 1),
-                  _buildButtonProfile(
-                      onPressed: () {},
-                      text: "Cập nhật ứng dụng",
-                      icon: Icons.download_outlined),
+                  // _buildButtonProfile(
+                  //     onPressed: () {},
+                  //     text: "Cập nhật ứng dụng",
+                  //     icon: Icons.download_outlined),
                 ],
               ),
             ).paddingAll(16),

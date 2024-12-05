@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:qlbh_eco_food/base/const/app_text_style.dart';
 import 'package:qlbh_eco_food/base/const/colors.dart';
-import 'package:qlbh_eco_food/base/widget/base_widget.dart';
+import 'package:qlbh_eco_food/features/category/view/category_page.dart';
 import 'package:qlbh_eco_food/features/home/view/home_page.dart';
 import 'package:qlbh_eco_food/features/home_page/home_page_controller.dart';
 import 'package:qlbh_eco_food/features/nofitication/views/notification_page.dart';
@@ -15,43 +14,30 @@ class HomePageView extends GetView<HomePageController> {
 
   @override
   Widget build(BuildContext context) {
+    // Set default page if arguments are provided
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.arguments != null && Get.arguments is int) {
+        int pageIndex = Get.arguments;
+        _pageController.jumpToPage(pageIndex);
+        controller.pageIndex.value = pageIndex;
+      }
+    });
+
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
-        child: Obx(() {
-          return controller.pageIndex.value != 4
-              ? AppBar(
-                  automaticallyImplyLeading: false,
-                  titleSpacing: 0,
-                  title: BaseWidget.buildAppBarCustom(),
-                )
-              : AppBar(
-                  backgroundColor: AppColors.backgroundColor,
-                  automaticallyImplyLeading: false,
-                  title: BaseWidget.buildText(
-                    "Tài khoản",
-                    style: AppTextStyle.font24Re,
-                  ),
-                  centerTitle: true,
-                );
-        }),
-      ),
       backgroundColor: AppColors.backgroundColor,
-      body: SafeArea(
-        child: PageView(
-          physics: const NeverScrollableScrollPhysics(),
-          controller: _pageController,
-          onPageChanged: (index) {
-            controller.pageIndex.value = index;
-          },
-          children: [
-            HomePage(),
-            // ListProductPage(),
-            OrderPage(),
-            NotificationPage(),
-            ProfilePage(),
-          ],
-        ),
+      body: PageView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _pageController,
+        onPageChanged: (index) {
+          controller.pageIndex.value = index;
+        },
+        children: [
+          HomePage(),
+          CategoryView(),
+          OrderPage(),
+          NotificationPage(),
+          ProfilePage(),
+        ],
       ),
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(splashFactory: NoSplash.splashFactory),

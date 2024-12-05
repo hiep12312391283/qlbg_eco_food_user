@@ -5,34 +5,23 @@ import 'package:qlbh_eco_food/base/const/app_text_style.dart';
 import 'package:qlbh_eco_food/base/const/colors.dart';
 import 'package:qlbh_eco_food/features/order/controller/order_controller.dart';
 import 'package:qlbh_eco_food/features/order/view/order_detail_page.dart';
-import 'package:qlbh_eco_food/features/order_history/view/order_history_page.dart'; // Import màn OrderHistoryPage
 
-class OrderPage extends StatelessWidget {
+class OrderHistoryPage extends StatelessWidget {
   final OrderController orderController = Get.put(OrderController());
 
-  OrderPage({super.key});
+  OrderHistoryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         centerTitle: true,
         title: Text(
-          'Đơn hàng',
+          'Lịch sử đơn hàng',
           style: AppTextStyle.font24Semi.copyWith(color: Colors.white),
         ),
         backgroundColor: AppColors.green.shade400,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.history, color: Colors.white),
-            onPressed: () {
-              Get.to(
-                  () => OrderHistoryPage()); // Chuyển đến màn OrderHistoryPage
-            },
-          ),
-        ],
       ),
       body: Container(
         padding: EdgeInsets.all(10.0),
@@ -44,27 +33,23 @@ class OrderPage extends StatelessWidget {
           ),
         ),
         child: Obx(() {
-          final ongoingOrders = orderController.orders
-              .where((order) => order.orderStatus != 3)
-              .toList(); // Lọc các đơn hàng chưa hoàn thành
+          final completedOrders = orderController.orders
+              .where((order) => order.orderStatus == 3)
+              .toList();
 
-          if (orderController.isLoading.value) {
+          if (completedOrders.isEmpty) {
             return Center(
-                child: CircularProgressIndicator()); // Hiển thị loading
-          }
-          if (ongoingOrders.isEmpty) {
-            return Center(
-              child:
-                  Text('Chưa có đơn hàng nào.', style: AppTextStyle.font16Re),
+              child: Text('Chưa có đơn hàng hoàn thành.',
+                  style: AppTextStyle.font16Re),
             );
           }
+
           return ListView.builder(
-            itemCount: ongoingOrders.length,
+            itemCount: completedOrders.length,
             itemBuilder: (context, index) {
-              final order = ongoingOrders[index];
+              final order = completedOrders[index];
               return GestureDetector(
                 onTap: () {
-                  print("-------${order.orderStatus}");
                   Get.to(() => OrderDetailPage(order: order));
                 },
                 child: Card(
@@ -75,13 +60,6 @@ class OrderPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Center(
-                          child: Text(
-                            '${_getStatusText(order.orderStatus)}',
-                            style: AppTextStyle.font20Semi,
-                          ),
-                        ),
-                        SizedBox(height: 8),
                         Row(
                           children: [
                             Icon(Icons.receipt_long, color: Colors.green),
@@ -92,6 +70,15 @@ class OrderPage extends StatelessWidget {
                           ],
                         ),
                         SizedBox(height: 8),
+                        // Row(
+                        //   children: [
+                        //     Icon(Icons.person, color: Colors.blue),
+                        //     SizedBox(width: 8),
+                        //     Text('Khách hàng: ${order.userName}',
+                        //         style: AppTextStyle.font16Re),
+                        //   ],
+                        // ),
+                        // SizedBox(height: 8),
                         Row(
                           children: [
                             Icon(Icons.location_on, color: Colors.red),
@@ -113,14 +100,10 @@ class OrderPage extends StatelessWidget {
                         SizedBox(height: 8),
                         Row(
                           children: [
-                            Icon(
-                                order.paymentMethod == 1
-                                    ? Icons.money
-                                    : Icons.credit_card,
-                                color: Colors.purple),
+                            Icon(Icons.check_circle_outline,
+                                color: Colors.green),
                             SizedBox(width: 8),
-                            Text(
-                                'Phương thức thanh toán: ${order.paymentMethod == 1 ? 'Tiền mặt' : 'Online'}',
+                            Text('Trạng thái đơn hàng: Đã hoàn thành',
                                 style: AppTextStyle.font16Re),
                           ],
                         ),
@@ -141,16 +124,5 @@ class OrderPage extends StatelessWidget {
     final formatCurrency =
         NumberFormat.currency(locale: 'vi_VN', symbol: 'VND');
     return formatCurrency.format(amount);
-  }
-
-  // Phương thức lấy text cho trạng thái đơn hàng
-  String _getStatusText(int status) {
-    List<String> statusList = [
-      'Đã đặt hàng',
-      'Đang chờ đơn vị vận chuyển',
-      'Đang vận chuyển',
-      'Đơn hàng đã được giao'
-    ];
-    return statusList[status];
   }
 }

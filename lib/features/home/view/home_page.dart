@@ -3,10 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:qlbh_eco_food/base/const/app_text_style.dart';
 import 'package:qlbh_eco_food/base/const/colors.dart';
 import 'package:qlbh_eco_food/features/cart/controller/cart_controller.dart';
+import 'package:qlbh_eco_food/features/cart/view/cart_view.dart';
 import 'package:qlbh_eco_food/features/home/controller/home_controller.dart';
 import 'package:qlbh_eco_food/features/home/models/product_models.dart';
+import 'package:qlbh_eco_food/features/search_product/view/search_product_page.dart';
 
 class HomePage extends GetView<HomeController> {
   HomePage({super.key});
@@ -18,6 +21,60 @@ class HomePage extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        title: Text(
+          'Sản phẩm',
+          style: AppTextStyle.font24Semi.copyWith(color: Colors.white),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search, color: Colors.white),
+            onPressed: () {
+              Get.to(SearchProductPage());
+            },
+          ),
+          Obx(() {
+            int itemCount = cartController.cartItems.length;
+            return Stack(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.shopping_cart_outlined, color: Colors.white,),
+                  onPressed: () {
+                    Get.to(() => CartPage());
+                  },
+                ),
+                if (itemCount > 0)
+                  Positioned(
+                    right: 11,
+                    top: 11,
+                    child: Container(
+                      padding: EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      constraints: BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        '$itemCount',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          }).paddingOnly(right: 8),
+        ],
+        backgroundColor: AppColors.green.shade400,
+      ),
       body: Column(
         children: [
           Expanded(
@@ -255,7 +312,6 @@ class HomePage extends GetView<HomeController> {
       },
     );
   }
-
 
   String formatPrice(double price) {
     var formatter = NumberFormat("#,###");

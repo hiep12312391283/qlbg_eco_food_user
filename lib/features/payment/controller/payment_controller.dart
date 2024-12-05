@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:qlbh_eco_food/features/cart/controller/cart_controller.dart';
 import 'package:qlbh_eco_food/features/payment/model/order_model.dart';
 
@@ -22,6 +21,7 @@ class PaymentController extends GetxController {
     fetchUserData();
   }
 
+  // Fetch user data from Firestore
   Future<void> fetchUserData() async {
     try {
       final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -44,6 +44,7 @@ class PaymentController extends GetxController {
     }
   }
 
+  // Place an order
   void placeOrder() async {
     try {
       final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -65,6 +66,7 @@ class PaymentController extends GetxController {
           .toList();
 
       final order = OrderAdmin(
+        documentId: '', 
         userId: userId,
         userName: userName.value,
         userPhone: userPhone.value,
@@ -73,8 +75,7 @@ class PaymentController extends GetxController {
         products: orderItems,
         totalPrice: cartController.totalPrice.value,
         paymentMethod: paymentMethod.value,
-        imageBase64:
-            "", // Trường này có vẻ không cần thiết trong OrderAdmin, có thể xóa đi nếu không dùng
+        orderStatus: 0,
       );
 
       // Gọi hàm addOrder để thêm đơn hàng vào Firestore và Realtime Database
@@ -86,18 +87,40 @@ class PaymentController extends GetxController {
     }
   }
 
+  // Thêm đơn hàng vào Firestore và Realtime Database
   void addOrder(OrderAdmin order) {
-    orders.add(order);
-    _firestore.collection('orders').add(order.toJson()).catchError((e) {
+    // Thêm đơn hàng vào Firestore
+    _firestore.collection('orders').add(order.toJson()).then((docRef) {
+      // Lấy document ID từ Firestore
+      final updatedOrder = OrderAdmin(
+        documentId: docRef.id, // Cập nhật ID của document
+        userId: order.userId,
+        userName: order.userName,
+        userPhone: order.userPhone,
+        userAddress: order.userAddress,
+        orderDate: order.orderDate,
+        products: order.products,
+        totalPrice: order.totalPrice,
+        paymentMethod: order.paymentMethod,
+        orderStatus: order.orderStatus,
+      );
+
+      // Cập nhật lại danh sách đơn hàng với ID mới
+      orders.add(updatedOrder);
+      print('Order added to Firestore with document ID: ${docRef.id}');
+
+      // Thêm đơn hàng vào Realtime Database
+      _database
+          .ref()
+          .child('orders')
+          .child(order.userId)
+          .child(docRef.id) // Sử dụng document ID của Firestore làm key
+          .set(updatedOrder.toJson())
+          .catchError((e) {
+        print("Lỗi khi thêm vào Realtime Database: $e");
+      });
+    }).catchError((e) {
       print("Lỗi khi thêm vào Firestore: $e");
-    });
-    _database
-        .ref()
-        .child('orders') // Sửa lại từ 'order' thành 'orders'
-        .child(order.userId) // sử dụng order.userId làm key
-        .set(order.toJson())
-        .catchError((e) {
-      print("Lỗi khi thêm vào Realtime Database: $e");
     });
   }
 }

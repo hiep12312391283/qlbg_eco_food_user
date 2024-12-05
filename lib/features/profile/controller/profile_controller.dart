@@ -81,9 +81,9 @@ class ProfileController extends GetxController {
 
   @override
   void onClose() {
-    nameController.dispose();
-    phoneController.dispose();
-    addressController.dispose();
+    // nameController.dispose();
+    // phoneController.dispose();
+    // addressController.dispose();
     super.onClose();
   }
 }

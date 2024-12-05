@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,12 +20,15 @@ class HomeController extends GetxController {
   final descriptionController = TextEditingController();
   final stockController = TextEditingController();
   final expiryDateController = TextEditingController();
+  final searchController = TextEditingController();
+
   final idError = ''.obs;
   final nameError = ''.obs;
   final categoryError = ''.obs;
   final priceError = ''.obs;
   final descriptionError = ''.obs;
   final stockError = ''.obs;
+  var searchQuery = ''.obs;
 
   final formKey = GlobalKey<FormState>();
   var products = <Product>[].obs;
@@ -54,22 +55,32 @@ class HomeController extends GetxController {
       _firestore.collection('products').snapshots().listen((querySnapshot) {
         final List<Product> loadedProducts = querySnapshot.docs.map((doc) {
           final data = doc.data();
+
+          // Kiểm tra các trường có thể là null và cung cấp giá trị mặc định
           return Product(
-            id: data['id'],
-            name: data['name'],
-            category: data['category'],
-            price: data['price'],
-            description: data['description'],
-            stock: data['stock'],
-            entryDate: data['entryDate'] is Timestamp
-                ? (data['entryDate'] as Timestamp).toDate()
-                : DateTime.parse(data['entryDate']),
+            id: data['id'] ??
+                '', // Nếu 'id' là null, gán giá trị mặc định là chuỗi rỗng
+            name: data['name'] ??
+                '', // Nếu 'name' là null, gán giá trị mặc định là chuỗi rỗng
+            categoryId: data['categoryId'] ??
+                '', // Nếu 'category' là null, gán giá trị mặc định là chuỗi rỗng
+            price: data['price'] ??
+                0.0, // Nếu 'price' là null, gán giá trị mặc định là 0.0
+            description: data['description'] ??
+                '', // Nếu 'description' là null, gán giá trị mặc định là chuỗi rỗng
+            stock: data['stock'] ??
+                0, // Nếu 'stock' là null, gán giá trị mặc định là 0
             expiryDate: data['expiryDate'] is Timestamp
                 ? (data['expiryDate'] as Timestamp).toDate()
-                : DateTime.parse(data['expiryDate']),
-            imageBase64: data['imageBase64'],
+                : DateTime.parse(data['expiryDate'] ??
+                    DateTime.now()
+                        .toString()), // Kiểm tra 'expiryDate' có null không
+            imageBase64: data['imageBase64'] ??
+                '', // Nếu 'imageBase64' là null, gán giá trị mặc định là chuỗi rỗng
           );
         }).toList();
+
+        // Gán danh sách sản phẩm đã tải vào Rx list
         products.value = loadedProducts;
       });
     } catch (e) {
@@ -77,8 +88,9 @@ class HomeController extends GetxController {
     }
   }
 
-  String encodeImageToBase64(File image) {
-    final bytes = image.readAsBytesSync();
-    return base64Encode(bytes);
+  void updateSearchQuery(String query) {
+    searchQuery.value = query;
+    // Lọc sản phẩm theo truy vấn tìm kiếm
+    products.refresh();
   }
 }

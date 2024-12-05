@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
+import 'package:qlbh_eco_food/api/firebase_api.dart';
 import 'package:qlbh_eco_food/app/binding/global_binding.dart';
 import 'package:qlbh_eco_food/app/ui/splash_screen.dart';
 import 'package:qlbh_eco_food/features/cart/view/cart_view.dart';
@@ -10,6 +11,8 @@ import 'package:qlbh_eco_food/features/home_page/home_page_binding.dart';
 import 'package:qlbh_eco_food/features/home_page/home_page_view.dart';
 import 'package:qlbh_eco_food/features/login/binding/login_binding.dart';
 import 'package:qlbh_eco_food/features/login/view/login_page.dart';
+import 'package:qlbh_eco_food/features/order/view/order_detail_page.dart';
+import 'package:qlbh_eco_food/features/payment/model/order_model.dart';
 import 'package:qlbh_eco_food/features/product_detail/views/product_detail_page.dart';
 import 'package:qlbh_eco_food/features/profile/views/profile_page.dart';
 import 'package:qlbh_eco_food/features/register/view/register_page.dart';
@@ -21,6 +24,7 @@ void main() {
 void _init() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+    await FirebaseApi().initNotifications();
   final options = Firebase.app().options;
   print('Project ID: ${options.projectId}');
   print('App ID: ${options.appId}');
@@ -41,9 +45,10 @@ class MyApp extends StatelessWidget {
         initialBinding: GlobalBinding(),
         getPages: [
           GetPage(
-              name: '/login',
-              page: () => LoginPage(onTap: () {}),
-              binding: LoginBinding()),
+            name: '/login',
+            page: () => LoginPage(),
+            binding: LoginBinding(),
+          ),
           GetPage(
             name: '/register',
             page: () => RegisterPage(
@@ -65,11 +70,18 @@ class MyApp extends StatelessWidget {
           ),
           GetPage(
             name: '/account',
-            page: () =>  ProfilePage(),
+            page: () => ProfilePage(),
           ),
           GetPage(
             name: '/cart',
             page: () => CartPage(),
+          ),
+          GetPage(
+            name: '/orderDetail',
+            page: () {
+              final OrderAdmin order = Get.arguments as OrderAdmin;
+              return OrderDetailPage(order: order);
+            },
           ),
         ],
       ),

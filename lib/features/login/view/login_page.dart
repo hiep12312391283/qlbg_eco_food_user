@@ -15,30 +15,61 @@ import 'package:qlbh_eco_food/features/register/model/user.dart';
 class LoginPage extends GetView<LoginController> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final void Function()? onTap;
-  LoginPage({super.key, required this.onTap});
+  LoginPage({super.key});
 
   void login(BuildContext context) async {
     final authService = AuthService();
+    final controller = Get.find<LoginController>(); // Lấy instance controller
+
+    // Bắt đầu quá trình đăng nhập, hiển thị loading
+    controller.isLoading.value = true;
+
     try {
+      // Xác thực tài khoản người dùng
       User? user = await authService.signInWithEmailPassword(
           _emailController.text, _passwordController.text);
 
+      // Kiểm tra xem người dùng đã xác thực email chưa
       if (user != null && user.emailVerified) {
         // Lấy thông tin người dùng từ Firestore
         DocumentSnapshot userDoc = await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .get();
-        UserModel userModel = UserModel.fromFirestore(userDoc);
 
-        // In ra id và name
-        print('User ID: ${userModel.id}');
-        print('User Name: ${userModel.name}');
+        // Kiểm tra xem có dữ liệu từ Firestore hay không
+        if (userDoc.exists) {
+          UserModel userModel = UserModel.fromFirestore(userDoc);
 
-        Get.offAllNamed('/home_page');
+          // In ra id và name người dùng (cho mục đích debug)
+          print('User ID: ${userModel.id}');
+          print('User Name: ${userModel.name}');
+
+          // Sau khi lấy dữ liệu xong, ẩn loading và chuyển trang
+          controller.isLoading.value = false;
+          Get.offAllNamed('/home_page');
+        } else {
+          // Xử lý khi không tìm thấy người dùng trong Firestore
+          controller.isLoading.value = false;
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text("Không tìm thấy dữ liệu người dùng"),
+              content: Text("Không thể tải thông tin người dùng từ Firestore."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            ),
+          );
+        }
       } else {
-        // await authService.signOut();
+        // Nếu email chưa xác thực
+        controller.isLoading.value = false;
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -57,26 +88,66 @@ class LoginPage extends GetView<LoginController> {
         );
       }
     } catch (e) {
+      // Xử lý lỗi và ẩn loading
+      controller.isLoading.value = false;
       showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-                title: Text("Đăng nhập thất bại"),
-                content: Text(e.toString()),
-              ));
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+            "Đăng nhập thất bại",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          content: Text(
+            "Email hoặc mật khẩu không đúng",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                "OK",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              style: ButtonStyle(
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(AppColors.green),
+              ),
+            ),
+          ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+        ),
+      );
     }
   }
 
+
+
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        body: Stack(
-          children: [
-            Form(
-              autovalidateMode: controller.validateMode.value,
-              child: SingleChildScrollView(
-                child: SafeArea(
-                  child: Column(
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          Form(
+            autovalidateMode: controller.validateMode.value,
+            child: SingleChildScrollView(
+              child: SafeArea(child: Obx(
+                () {
+                  return Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       Center(
@@ -88,7 +159,7 @@ class LoginPage extends GetView<LoginController> {
                       ).paddingOnly(top: 30),
                       const SizedBox(height: 20),
                       txtFormField(
-                        controller: _emailController,
+                        controllerr: _emailController,
                         text: "Email",
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -98,8 +169,19 @@ class LoginPage extends GetView<LoginController> {
                         },
                       ).paddingOnly(bottom: 16),
                       txtFormField(
-                        controller: _passwordController,
+                        obscureText: controller.isObscure.value,
+                        controllerr: _passwordController,
                         text: "Mật khẩu",
+                        icon: IconButton(
+                          onPressed: () {
+                            controller.toggleEyeIcon();
+                          },
+                          icon: Icon(
+                            controller.isObscure.value
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                        ),
                         validator: (value) {
                           if (value == null ||
                               value.length < 8 ||
@@ -122,12 +204,15 @@ class LoginPage extends GetView<LoginController> {
                                   color: AppColors.green,
                                 ))),
                       ).paddingOnly(bottom: 8),
-                      CustomButton(
-                        textBtn: 'Đăng nhập',
-                        onPressed: () {
-                          login(context);
-                        },
-                      ).paddingOnly(bottom: 16),
+                      // Nếu đang loading, hiển thị CircularProgressIndicator
+                      controller.isLoading.value
+                          ? CircularProgressIndicator()
+                          : CustomButton(
+                              textBtn: 'Đăng nhập',
+                              onPressed: () {
+                                login(context);
+                              },
+                            ).paddingOnly(bottom: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -154,54 +239,62 @@ class LoginPage extends GetView<LoginController> {
                         ],
                       ),
                     ],
-                  ).paddingSymmetric(horizontal: 16),
-                ),
-              ),
+                  ).paddingSymmetric(horizontal: 16);
+                },
+              )),
             ),
-          ],
-        ));
-  }
-}
-
-Widget txtFormField({
-  required String text,
-  required TextEditingController controller,
-  required FormFieldValidator<String> validator,
-  TextStyle? style,
-  int? maxLength,
-  TextInputType? textInputType,
-  List<TextInputFormatter>? inputFormatters,
-}) {
-  return Column(
-    children: [
-      Align(
-        alignment: Alignment.centerLeft,
-        child: Text(text, style: AppTextStyle.font16Re),
-      ).paddingOnly(bottom: 8),
-      TextFormField(
-        controller: controller,
-        style: style ??
-            AppTextStyle.font14Re.copyWith(
-              fontWeight: FontWeight.w400,
-              fontSize: 16,
-            ),
-        maxLength: maxLength,
-        keyboardType: textInputType,
-        inputFormatters: inputFormatters,
-        validator: validator,
-        decoration: InputDecoration(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-          counterText: "",
-          hintText: text,
-          hintStyle: style,
-          filled: true,
-          fillColor: AppColors.txtFormField,
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: BorderSide.none),
-        ),
+          ),
+        ],
       ),
-    ],
-  );
+    );
+  }
+
+
+  Widget txtFormField({
+    required String text,
+    required TextEditingController controllerr,
+    required FormFieldValidator<String> validator,
+    TextStyle? style,
+    int? maxLength,
+    TextInputType? textInputType,
+    List<TextInputFormatter>? inputFormatters,
+    IconButton? icon,
+    bool obscureText = false,
+  }) {
+    return Column(
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(text, style: AppTextStyle.font16Re),
+        ).paddingOnly(bottom: 8),
+        TextFormField(
+          controller: controllerr,
+          obscureText: obscureText, // Add this line
+          style: style ??
+              AppTextStyle.font14Re.copyWith(
+                fontWeight: FontWeight.w400,
+                fontSize: 16,
+              ),
+          maxLength: maxLength,
+          keyboardType: textInputType,
+          inputFormatters: inputFormatters,
+          validator: validator,
+          decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+            counterText: "",
+            hintText: text,
+            hintStyle: style,
+            filled: true,
+            fillColor: AppColors.txtFormField,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide.none,
+            ),
+            suffixIcon: icon,
+          ),
+        )
+      ],
+    );
+  }
 }

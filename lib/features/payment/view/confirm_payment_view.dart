@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:qlbh_eco_food/features/cart/controller/cart_controller.dart';
-import 'package:qlbh_eco_food/features/payment/controller/payment_controller.dart';
 import 'package:qlbh_eco_food/base/const/app_text_style.dart';
+import 'package:qlbh_eco_food/features/cart/controller/cart_controller.dart';
+import 'package:qlbh_eco_food/features/home_page/home_page_view.dart';
+import 'package:qlbh_eco_food/features/order/view/order_detail_page.dart';
+import 'package:qlbh_eco_food/features/order/view/order_page.dart';
+import 'package:qlbh_eco_food/features/payment/controller/payment_controller.dart';
 
 class PaymentSuccessPage extends StatelessWidget {
   final CartController cartController = Get.find<CartController>();
@@ -18,6 +21,7 @@ class PaymentSuccessPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('Đặt hàng thành công', style: AppTextStyle.font24Semi),
         centerTitle: true,
         backgroundColor: Colors.green,
@@ -72,14 +76,14 @@ class PaymentSuccessPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Xử lý xem đơn hàng của tôi
-                    },
-                    child: Text('Đơn hàng của tôi'),
-                  ),
-                ),
+                // Expanded(
+                //   child: ElevatedButton(
+                //     onPressed: () {
+                //       Get.to(OrderDetailPage());
+                //     },
+                //     child: Text('Đơn hàng của tôi'),
+                //   ),
+                // ),
               ],
             ),
           ],

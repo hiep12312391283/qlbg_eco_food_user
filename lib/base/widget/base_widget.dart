@@ -5,6 +5,7 @@ import 'package:qlbh_eco_food/base/const/app_text_style.dart';
 import 'package:qlbh_eco_food/base/const/colors.dart';
 import 'package:qlbh_eco_food/features/cart/controller/cart_controller.dart';
 import 'package:qlbh_eco_food/features/cart/view/cart_view.dart';
+import 'package:qlbh_eco_food/features/search_product/view/search_product_page.dart';
 
 class BaseWidget {
   static Widget buildText(
@@ -45,82 +46,88 @@ class BaseWidget {
     return Container(
       color: AppColors.green,
       width: double.infinity,
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              height: 32,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Colors.white,
-              ),
-              child: Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Icon(
-                      Icons.search_rounded,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Expanded(
-                    child: TextFormField(
-                      textAlign: TextAlign.start,
-                      decoration: InputDecoration(
-                        hintText: hintText,
-                        hintStyle: const TextStyle(
-                            fontFamily: "Oswald",
-                            color: Colors.grey,
-                            fontWeight: FontWeight.w300),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ).paddingOnly(right: 8),
-          ),
-          Obx(() {
-            int itemCount = cartController.cartItems.length;
-            return Stack(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.shopping_cart_outlined),
-                  onPressed: () {
-                    Get.to(() => CartPage());
-                  },
+      child: GestureDetector(
+        onTap: () {
+          Get.to(() => SearchProductPage()); // Replace with your desired screen
+        },
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                height: 32,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.white,
                 ),
-                if (itemCount > 0)
-                  Positioned(
-                    right: 11,
-                    top: 11,
-                    child: Container(
-                      padding: EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      constraints: BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                      child: Text(
-                        '$itemCount',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
-                        textAlign: TextAlign.center,
+                child: Row(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Icon(
+                        Icons.search_rounded,
+                        color: Colors.grey,
                       ),
                     ),
+                    Expanded(
+                      child: TextFormField(
+                        textAlign: TextAlign.start,
+                        decoration: InputDecoration(
+                          hintText: hintText,
+                          hintStyle: const TextStyle(
+                              fontFamily: "Oswald",
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w300),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ).paddingOnly(right: 8),
+            ),
+            Obx(() {
+              int itemCount = cartController.cartItems.length;
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.shopping_cart_outlined),
+                    onPressed: () {
+                      Get.to(() => CartPage());
+                    },
                   ),
-              ],
-            );
-          }).paddingOnly(right: 8),
-        ],
-      ).paddingSymmetric( vertical: 16).paddingOnly(left: 12),
+                  if (itemCount > 0)
+                    Positioned(
+                      right: 11,
+                      top: 11,
+                      child: Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '$itemCount',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            }).paddingOnly(right: 8),
+          ],
+        ).paddingSymmetric(vertical: 16).paddingOnly(left: 12),
+      ),
     );
   }
+
 
   static Widget buildButtonShoppingCart() {
     return Row(

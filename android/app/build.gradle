@@ -63,5 +63,5 @@ flutter {
 }
 
 dependencies {
-    // Các dependencies khác ở đây
+        implementation 'com.google.firebase:firebase-messaging'
 }
